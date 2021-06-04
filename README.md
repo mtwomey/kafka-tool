@@ -2,7 +2,7 @@
 
 ## Installation (Requires NodeJs >= 12)
 
-`npm i -g mtwomey/kafka-tool#v0.0.1` (or whatever version)
+`npm i -g mtwomey/kafka-tool#v0.0.2` (or whatever version tag)
 
 ## Setup config
 
@@ -14,7 +14,9 @@
 
 ## Listen to a topic
 
-`kafka-tool --consume [TOPIC]`
+`kafka-tool --consume [TOPIC]` (will use group consumer and generate a random groupId)
+
+`kafka-tool --consume [TOPIC] --group-id [GROUP_ID]` (will use group consumer with the specified groupId)
 
 ## Help
 

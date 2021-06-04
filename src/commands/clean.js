@@ -9,8 +9,8 @@ const pjson = require('../../package.json');
 const command = {
     name: 'clean',
     syntax: [
-        '-c',
-        '--clean'
+        '--clean',
+        '-c'
     ],
     helpText: 'Clean up any temp data (for safety / security)',
     handler: handler

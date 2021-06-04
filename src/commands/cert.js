@@ -18,7 +18,7 @@ tcommands.register(command);
 async function handler() {
     console.log('Paste in the SSL cert (not key). End with Enter, then CTRL-D');
     tempData.put(`kafkaSslCert`, await readMultiLine());
-    console.log('Paste in the SSL key (not vert). End with Enter, then CTRL-D');
+    console.log('Paste in the SSL key (not cert). End with Enter, then CTRL-D');
     tempData.put(`kafkaSslKey`, await readMultiLine());
 }
 

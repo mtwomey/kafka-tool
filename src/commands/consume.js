@@ -1,10 +1,10 @@
 'use strict';
 
 const tcommands = require('tcommands');
-const pjson = require('../../package.json');
 const Kafka = require('no-kafka');
 const logger = require('../../lib/logger');
 const tempData = require('../../lib/tempData');
+const util = require('../../lib/util');
 
 const command = {
     name: 'consume',
@@ -20,10 +20,10 @@ tcommands.register(command);
 
 async function handler () {
     const initErrors = [];
-    let kafkaHost = tempData.get('kafkaHost') || initErrors.push('--host [HOSTNAME / IP] to specify kafka host');
-    let kafkaPort = tempData.get('kafkaPort') || initErrors.push('--port [PORT] to specify kafka port');
-    let kafkaSslCert = tempData.get('kafkaSslCert') || initErrors.push('--cert to specify kafka SSL cert');
-    let kafkaSslKey = tempData.get('kafkaSslKey') || initErrors.push('--cert to specify kafka SSL key');
+    const kafkaHost = tempData.get('kafkaHost') || initErrors.push('--host [HOSTNAME / IP] to specify kafka host');
+    const kafkaPort = tempData.get('kafkaPort') || initErrors.push('--port [PORT] to specify kafka port');
+    const kafkaSslCert = tempData.get('kafkaSslCert') || initErrors.push('--cert to specify kafka SSL cert');
+    const kafkaSslKey = tempData.get('kafkaSslKey') || initErrors.push('--cert to specify kafka SSL key');
 
     if (initErrors.length > 0) {
         console.log('Usage:\n\n"kafka-tool --help" for help\n');
@@ -35,12 +35,15 @@ async function handler () {
         process.exit(1);
     }
 
+    const groupId = tcommands.getArgValue('groupId') || `kafka-tool_${util.getRandomString(8)}`;
+
     const consumer = new Kafka.GroupConsumer({
         connectionString: `${kafkaHost}:${kafkaPort}`,
         ssl: {
-            cert: tempData.get('kafkaSslCert'),
-            key: tempData.get('kafkaSslKey')
-        }
+            cert: kafkaSslCert,
+            key: kafkaSslKey
+        },
+        groupId: groupId
     });
 
     let dataHandler = function (messageSet, topic, partition) {

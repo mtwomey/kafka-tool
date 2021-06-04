@@ -3,12 +3,11 @@
 const tcommands = require('tcommands');
 
 const command = {
-    name: 'debug',
+    name: 'groupId',
     syntax: [
-        '--debug',
-        '-d'
+        '--group-id'
     ],
-    helpText: 'Include debug info in the output'
-}
+    helpText: 'Specify a kafka group id'
+};
 
 tcommands.register(command);

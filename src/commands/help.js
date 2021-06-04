@@ -6,8 +6,8 @@ const pjson = require('../../package.json');
 const command = {
     name: 'help',
     syntax: [
-        '-h',
-        '--help'
+        '--help',
+        '-h'
     ],
     helpText: 'Shows this help text',
     handler: handler,

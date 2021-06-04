@@ -6,8 +6,8 @@ const tempData = require('../../lib/tempData');
 const command = {
     name: 'host',
     syntax: [
-        '-h',
-        '--host'
+        '--host',
+        '-h'
     ],
     helpText: 'Specify the kafka host address',
     handler: handler

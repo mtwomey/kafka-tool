@@ -6,8 +6,8 @@ const tempData = require('../../lib/tempData');
 const command = {
     name: 'port',
     syntax: [
-        '-p',
-        '--port'
+        '--port',
+        '-p'
     ],
     helpText: 'Specify the kafka host port',
     handler: handler

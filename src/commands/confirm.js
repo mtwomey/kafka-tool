@@ -5,8 +5,8 @@ const tcommands = require('tcommands');
 const command = {
     name: 'confirm',
     syntax: [
-        '-y',
-        '--confirm'
+        '--confirm',
+        '-y'
     ],
     helpText: 'Confirm action'
 };
