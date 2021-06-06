@@ -36,7 +36,7 @@ function readMultiLine() {
             input.push(cmd);
         });
 
-        rl.on('close', function (cmd) {
+        rl.on('close', function () {
             resolve(input.join('\n'));
         });
     });

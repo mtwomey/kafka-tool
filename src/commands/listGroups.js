@@ -2,16 +2,14 @@
 
 const tcommands = require('tcommands');
 const Kafka = require('no-kafka');
-const logger = require('../../lib/logger');
 const tempData = require('../../lib/tempData');
-const util = require('../../lib/util');
 
 const command = {
-    name: 'consume',
+    name: 'listGroups',
     syntax: [
-        '--consume'
+        '--list-groups'
     ],
-    helpText: 'Consume from a topic',
+    helpText: 'List all kafka consumer groups',
     handler: handler,
     after: ['cert', 'host', 'port']
 }
@@ -24,9 +22,6 @@ async function handler () {
     const kafkaPort = tempData.get('kafkaPort') || initErrors.push('use --port [PORT] to specify kafka port')  && 0;
     const kafkaSslCert = tempData.get('kafkaSslCert') || initErrors.push('use --cert to specify kafka SSL cert') && 0;
     const kafkaSslKey = tempData.get('kafkaSslKey') || initErrors.push('use --cert to specify kafka SSL key')  && 0;
-    const topic = tcommands.getArgValue('consume');
-    if (topic === true || topic === false)
-        initErrors.push('you must supply a topic name for --consume');
 
     if (initErrors.length > 0) {
         console.log('Usage:\n\nkafka-tool --help for help');
@@ -41,32 +36,24 @@ async function handler () {
         process.exit(1);
     }
 
-    const groupId = tcommands.getArgValue('groupId') || `kafka-tool_${util.getRandomString(8)}`;
-
-    const consumer = new Kafka.GroupConsumer({
+    const admin = new Kafka.GroupAdmin({
         connectionString: `${kafkaHost}:${kafkaPort}`,
         ssl: {
             cert: kafkaSslCert,
             key: kafkaSslKey
-        },
-        groupId: groupId
+        }
     });
 
-    let dataHandler = function (messageSet, topic, partition) {
-        return new Promise(async (resolve, reject) => {
-            for (const message of messageSet) {
-                console.log(topic, partition, message.offset, message.message.value.toString('utf8'));
-                await consumer.commitOffset({topic: topic, partition: partition, offset: message.offset, metadata: 'optional'});
-                logger.debug(`Offset updated to: ${message.offset}`);
-            }
-            resolve();
-        });
-    };
+    await admin.init();
+    const groups = await admin.listGroups();
+    const groupIds = groups.map(group => group.groupId);
 
-    let strategies = [{
-        subscriptions: [tcommands.getArgValue('consume')],
-        handler: dataHandler
-    }];
+    await Promise.all(groupIds.map(groupId => {
+        return admin.describeGroup(groupId).then((groupDetails) => {
+            process.stdout.write(`[Group ID]: ${groupDetails.groupId}`.padEnd(60));
+            console.log(`[Members]: ${groupDetails.members.length}`);
+        })
+    }));
 
-    await consumer.init(strategies);
+    admin.end();
 }
