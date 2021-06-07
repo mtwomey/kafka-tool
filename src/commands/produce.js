@@ -26,6 +26,7 @@ async function handler() {
     const kafkaSslKey = tempData.get('kafkaSslKey') || initErrors.push('use --cert to specify kafka SSL key') && 0;
     const topic = tcommands.getArgValue('topic') || initErrors.push('you must supply a topic name with --topic');
     const message = tcommands.getArgValue('message') || initErrors.push('you must supply a message with --message');
+    const count = tcommands.getArgValue('count') || 1; // Maybe I should work out a default values mechanism in general
 
     if (initErrors.length > 0) {
         console.log('Usage:\n\nkafka-tool --help for help');
@@ -50,38 +51,18 @@ async function handler() {
 
     await producer.init();
 
-    await producer.send({
-        topic: topic,
-        message: {value: message}
-    });
+    await Promise.all([...Array(parseInt(count)).keys()].map(i => {
+        let countTag = '';
+        if (count > 1)
+            countTag = `[Count Tag: ${i}]`;
+        console.log(`Start producing countNum ${i}`);
+        const p = producer.send({
+            topic: topic,
+            message: {value: countTag + message}
+        });
+        console.log(`End producing countNum ${i}`);
+        return p;
+    }));
 
     await producer.end();
-
-
-    // const consumer = new Kafka.GroupConsumer({
-    //     connectionString: `${kafkaHost}:${kafkaPort}`,
-    //     ssl: {
-    //         cert: kafkaSslCert,
-    //         key: kafkaSslKey
-    //     },
-    //     groupId: groupId
-    // });
-    //
-    // let dataHandler = function (messageSet, topic, partition) {
-    //     return new Promise(async (resolve, reject) => {
-    //         for (const message of messageSet) {
-    //             console.log(topic, partition, message.offset, message.message.value.toString('utf8'));
-    //             await consumer.commitOffset({topic: topic, partition: partition, offset: message.offset, metadata: 'optional'});
-    //             logger.debug(`Offset updated to: ${message.offset}`);
-    //         }
-    //         resolve();
-    //     });
-    // };
-    //
-    // let strategies = [{
-    //     subscriptions: [tcommands.getArgValue('consume')],
-    //     handler: dataHandler
-    // }];
-    //
-    // await consumer.init(strategies);
 }

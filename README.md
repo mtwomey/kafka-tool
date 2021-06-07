@@ -12,11 +12,15 @@
 
 `kafka-tool --cert` this will prompt you to paste in your PEM formatted cert and private key
 
-## Listen to a topic
+## Subscript to a topic
 
-`kafka-tool --consume [TOPIC]` (will use group consumer and generate a random groupId)
+`kafka-tool --consume --topic [TOPIC]` will use group consumer and generate a random groupId
 
-`kafka-tool --consume [TOPIC] --group-id [GROUP_ID]` (will use group consumer with the specified groupId)
+`kafka-tool --consume [TOPIC] --group-id [GROUP_ID]` will use group consumer with the specified groupId
+
+## Product to a topic
+
+`kafka-toool --produce --topic [TOPIC] --message [MESSAGE]` 
 
 ## Help
 
