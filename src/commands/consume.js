@@ -11,7 +11,7 @@ const command = {
     syntax: [
         '--consume'
     ],
-    helpText: 'Consume from a topic',
+    helpText: 'Consume from a topic: --consume --topic [TOPIC]',
     handler: handler,
     after: ['cert', 'host', 'port']
 }
@@ -24,7 +24,7 @@ async function handler () {
     const kafkaPort = tempData.get('kafkaPort') || initErrors.push('use --port [PORT] to specify kafka port')  && 0;
     const kafkaSslCert = tempData.get('kafkaSslCert') || initErrors.push('use --cert to specify kafka SSL cert') && 0;
     const kafkaSslKey = tempData.get('kafkaSslKey') || initErrors.push('use --cert to specify kafka SSL key')  && 0;
-    const topic = tcommands.getArgValue('consume');
+    const topic = tcommands.getArgValue('topic') || tcommands.getArgValue('consume');
     if (topic === true || topic === false)
         initErrors.push('you must supply a topic name for --consume');
 
@@ -55,6 +55,8 @@ async function handler () {
     let dataHandler = function (messageSet, topic, partition) {
         return new Promise(async (resolve, reject) => {
             for (const message of messageSet) {
+                if (!message.message.value)
+                    message.message.value = 'NULL VALUE';
                 console.log(topic, partition, message.offset, message.message.value.toString('utf8'));
                 await consumer.commitOffset({topic: topic, partition: partition, offset: message.offset, metadata: 'optional'});
                 logger.debug(`Offset updated to: ${message.offset}`);
@@ -64,7 +66,7 @@ async function handler () {
     };
 
     let strategies = [{
-        subscriptions: [tcommands.getArgValue('consume')],
+        subscriptions: [topic],
         handler: dataHandler
     }];
 
