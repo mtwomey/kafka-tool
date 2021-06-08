@@ -3,11 +3,11 @@
 const tcommands = require('tcommands');
 
 const command = {
-    name: 'count',
+    name: 'key',
     syntax: [
-        '--count'
+        '--key'
     ],
-    helpText: 'Specify a count',
+    helpText: 'Specify a key',
     showInHelp: false
 };
 

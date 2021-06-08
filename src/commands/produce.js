@@ -4,16 +4,15 @@ const tcommands = require('tcommands');
 const Kafka = require('no-kafka');
 const logger = require('../../lib/logger');
 const tempData = require('../../lib/tempData');
-const util = require('../../lib/util');
 
 const command = {
     name: 'produce',
     syntax: [
         '--produce'
     ],
-    helpText: 'Produce to a topic: --produce --topic [TOPIC] --message [message]',
+    helpText: 'Produce to a topic: --produce --topic [TOPIC] --message [message] [--count [#]] [--key [KEY]]',
     handler: handler,
-    after: ['cert', 'host', 'port']
+    after: ['cert', 'host', 'port', 'debug']
 };
 
 tcommands.register(command);
@@ -27,6 +26,7 @@ async function handler() {
     const topic = tcommands.getArgValue('topic') || initErrors.push('you must supply a topic name with --topic');
     const message = tcommands.getArgValue('message') || initErrors.push('you must supply a message with --message');
     const count = tcommands.getArgValue('count') || 1; // Maybe I should work out a default values mechanism in general
+    const key = tcommands.getArgValue('key');
 
     if (initErrors.length > 0) {
         console.log('Usage:\n\nkafka-tool --help for help');
@@ -51,18 +51,42 @@ async function handler() {
 
     await producer.init();
 
-    await Promise.all([...Array(parseInt(count)).keys()].map(i => {
+    // This produces as fast as possible, async, no waiting for anything at all
+    await Promise.all([...Array(parseInt(count)).keys()].map(async i => {
         let countTag = '';
-        if (count > 1)
-            countTag = `[Count Tag: ${i}]`;
-        console.log(`Start producing countNum ${i}`);
-        const p = producer.send({
+        if (count > 1) { // Add a tag at the beginning so that we can see which message # of the count it it
+            countTag = `[Count Tag: ${i.toString().padStart(2, '0')}]`;
+            logger.info(`Start producing countNum ${i}`);
+        }
+
+        const fullKafkaMessage = {
+            value: countTag + message
+        };
+        if (key)
+            fullKafkaMessage.key = key;
+
+        await producer.send({
             topic: topic,
-            message: {value: countTag + message}
+            message: fullKafkaMessage
+        }).then(() => {
+            if (count > 1)
+                logger.info(`End producing countNum ${i}`);
         });
-        console.log(`End producing countNum ${i}`);
-        return p;
     }));
+
+    // Sync
+    //
+    // for (let i = 0; i < parseInt(count); i++) {
+    //     let countTag = '';
+    //     if (count > 1)
+    //         countTag = `[Count Tag: ${i.toString().padStart(2, '0')}]`;
+    //     logger.debug(`Start producing countNum ${i}`);
+    //     await producer.send({
+    //         topic: topic,
+    //         message: {value: countTag + message}
+    //     });
+    //     logger.info(`End producing countNum ${i}`);
+    // }
 
     await producer.end();
 }
