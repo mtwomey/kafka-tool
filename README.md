@@ -2,7 +2,7 @@
 
 ## Installation (Requires NodeJs >= 12)
 
-`npm i -g mtwomey/kafka-tool#v0.0.4` (or whatever version tag)
+`npm i -g mtwomey/kafka-tool#v0.0.5` (or whatever version tag)
 
 ## Setup config
 
