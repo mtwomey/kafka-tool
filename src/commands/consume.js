@@ -57,7 +57,7 @@ async function handler () {
             for (const message of messageSet) {
                 if (!message.message.value)
                     message.message.value = 'NULL VALUE';
-                console.log(topic, partition, message.offset, message.message.value.toString('utf8'));
+                logger.info(`${topic} ${partition} ${message.offset} ${message.message.value.toString('utf8')}`);
                 await consumer.commitOffset({topic: topic, partition: partition, offset: message.offset, metadata: 'optional'});
                 logger.debug(`Offset updated to: ${message.offset}`);
             }

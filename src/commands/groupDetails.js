@@ -3,6 +3,7 @@
 const tcommands = require('tcommands');
 const Kafka = require('no-kafka');
 const tempData = require('../../lib/tempData');
+const logger = require('../../lib/logger');
 
 const command = {
     name: 'groupDetails',
@@ -50,7 +51,7 @@ async function handler () {
 
     await admin.init();
     const groupDetails = await admin.describeGroup(groupId);
-    console.log(JSON.stringify(groupDetails, null, 2));
+    logger.info(JSON.stringify(groupDetails, null, 2));
 
     admin.end();
 }
