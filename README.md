@@ -2,33 +2,38 @@
 
 ## Installation (Requires NodeJs >= 12)
 
-`npm i -g mtwomey/kafka-tool#v0.0.5` (or whatever version tag)
+`npm i -g mtwomey/kafka-tool#v0.0.6` (or whatever version tag)
 
 ## Setup config
 
-`kafka-tool --host [HOSTNAME / IP]` address of kafka server
-
-`kafka-tool --port [PORT]` port it's listening on
+`kafka-tool --connection-string [STRING]` Specify the kafka connection string like "host1:9093,host2:9093,host3:9093"
 
 `kafka-tool --cert` this will prompt you to paste in your PEM formatted cert and private key
 
-## Subscript to a topic
+You only need to run these commands once and the config data will be stored in your tmp direction.
 
-`kafka-tool --consume --topic [TOPIC]` will use group consumer and generate a random groupId
+## Subscribe to a topic
 
-`kafka-tool --consume [TOPIC] --group-id [GROUP_ID]` will use group consumer with the specified groupId
+`kafka-tool --consume --topic [TOPIC]` will use group consumer and generate a random groupId for the connection
+
+`kafka-tool --consume [TOPIC] --group-id [GROUP_ID]` will use group consumer with the specified groupId for the connection
 
 ## Produce to a topic
 
-Produce a single message.
+### Produce a single message
 
 `kafka-toool --produce --topic [TOPIC] --message [MESSAGE]` 
 
-Produce the same message N times. Note: this will prepend a counter in front of your message to keep track.
+### Produce the same message N times
+
 `kafka-toool --produce --topic [TOPIC] --message [MESSAGE] --count [N]` 
 
-Produce the same message N times using the designated key. As the key is used to determine the partition the message is sent to, this will result in all messages being produced to a single partition.
+Note: this will prepend a counter in front of your message to keep track.
+
+### Produce the same message N times using the designated key
 `kafka-toool --produce --topic [TOPIC] --message [MESSAGE] --count [N] --key [STRING]`
+
+Note: . As the key is used to determine the partition the message is sent to, this will result in all messages being produced to a single partition.
 
 ## Help
 
@@ -36,4 +41,4 @@ Produce the same message N times using the designated key. As the key is used to
 
 ## Note on temp data
 
-The keys and config data are stored in your temp directory. Use `kafka-tool --clean` to see and clear this data.
+Cert info and config data is stored in your temp directory. Use `kafka-tool --clean` to see and clear this data.
