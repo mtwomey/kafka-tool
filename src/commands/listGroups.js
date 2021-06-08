@@ -18,18 +18,24 @@ tcommands.register(command);
 
 async function handler () {
     const initErrors = [];
-    const kafkaHost = tempData.get('kafkaHost') || initErrors.push('use --host [HOSTNAME / IP] to specify kafka host') && 0;
-    const kafkaPort = tempData.get('kafkaPort') || initErrors.push('use --port [PORT] to specify kafka port')  && 0;
-    const kafkaSslCert = tempData.get('kafkaSslCert') || initErrors.push('use --cert to specify kafka SSL cert') && 0;
-    const kafkaSslKey = tempData.get('kafkaSslKey') || initErrors.push('use --cert to specify kafka SSL key')  && 0;
+    const kafkaConnectionString = tempData.get('kafkaConnectionString') || initErrors.push('use kafka-tool --connection-string [STRING] to specify kafka connection info')  && 0;
+    const kafkaSslCert = tempData.get('kafkaSslCert') || initErrors.push('use kafka-tool --cert to specify kafka SSL cert') && 0;
+    const kafkaSslKey = tempData.get('kafkaSslKey') || initErrors.push('use kafka-tool --cert to specify kafka SSL key')  && 0;
 
     if (initErrors.length > 0) {
-        console.log('Usage:\n\nkafka-tool --help for help');
-        if (!(kafkaHost && kafkaPort && kafkaSslCert && kafkaSslKey))
-            console.log('\nHost, port and SSL certs will be cached in temp. Set them with:\n\nkafka-tool --host [HOSTNAME / IP]' +
-                '\nkafka-tool --port [PORT]\nkafka-tool --cert' +
-                '\n\nYou don\'t need to specify these with each invocation, they are cached.');
-        console.log('\nErrors:\n');
+        console.log('Usage: kafka-tool --help for help');
+        if (!(kafkaConnectionString && kafkaSslCert && kafkaSslKey))
+            console.log(
+                `
+The SSL cert and the connection string will be cached in temp. Set them with:
+
+kafka-tool --connection-string [STRING]
+nkafka-tool --cert
+
+You don't need to specify these with each invocation, they are cached.
+`
+            );
+        console.log('Errors:\n');
         for (const error of initErrors) {
             console.log(`* ${error}`);
         }
@@ -37,7 +43,7 @@ async function handler () {
     }
 
     const admin = new Kafka.GroupAdmin({
-        connectionString: `${kafkaHost}:${kafkaPort}`,
+        connectionString: kafkaConnectionString,
         ssl: {
             cert: kafkaSslCert,
             key: kafkaSslKey

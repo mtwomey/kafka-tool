@@ -24,8 +24,8 @@ async function handler () {
     const kafkaSslCert = tempData.get('kafkaSslCert') || initErrors.push('use kafka-tool --cert to specify kafka SSL cert') && 0;
     const kafkaSslKey = tempData.get('kafkaSslKey') || initErrors.push('use kafka-tool --cert to specify kafka SSL key')  && 0;
     const topic = tcommands.getArgValue('topic') || tcommands.getArgValue('consume');
-    if (topic === true || topic === false)
-        initErrors.push('you must supply a topic name for --consume');
+    if (typeof topic === 'boolean' || !topic)
+        initErrors.push('you must supply a topic name with --topic [TOPIC NAME]');
 
     if (initErrors.length > 0) {
         console.log('Usage: kafka-tool --help for help');
