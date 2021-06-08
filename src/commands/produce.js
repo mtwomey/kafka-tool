@@ -53,25 +53,17 @@ async function handler() {
 
     // This produces as fast as possible, async, no waiting for anything at all
     await Promise.all([...Array(parseInt(count)).keys()].map(async i => {
-        let countTag = '';
-        if (count > 1) { // Add a tag at the beginning so that we can see which message # of the count it it
-            countTag = `[Count Tag: ${i.toString().padStart(2, '0')}]`;
-            logger.info(`Start producing countNum ${i}`);
-        }
-
         const fullKafkaMessage = {
-            value: countTag + message
+            value: count > 1 ? `[Count Tag: ${i.toString().padStart(2, '0')}]` : '' + message,
+            ...(count > 1 && {key: key}) // This is sweet - conditionally adds this property... maybe technically bad performance?
         };
-        if (key)
-            fullKafkaMessage.key = key;
 
+        logger.debug(`Start producing countNum ${i}`);
         await producer.send({
             topic: topic,
             message: fullKafkaMessage
-        }).then(() => {
-            if (count > 1)
-                logger.info(`End producing countNum ${i}`);
         });
+        logger.debug(`End producing countNum ${i}`);
     }));
 
     // Sync

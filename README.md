@@ -18,9 +18,17 @@
 
 `kafka-tool --consume [TOPIC] --group-id [GROUP_ID]` will use group consumer with the specified groupId
 
-## Product to a topic
+## Produce to a topic
+
+Produce a single message.
 
 `kafka-toool --produce --topic [TOPIC] --message [MESSAGE]` 
+
+Produce the same message N times. Note: this will prepend a counter in front of your message to keep track.
+`kafka-toool --produce --topic [TOPIC] --message [MESSAGE] --count [N]` 
+
+Produce the same message N times using the designated key. As the key is used to determine the partition the message is sent to, this will result in all messages being produced to a single partition.
+`kafka-toool --produce --topic [TOPIC] --message [MESSAGE] --count [N] --key [STRING]`
 
 ## Help
 
